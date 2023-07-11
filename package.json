@@ -1,0 +1,14 @@
+{
+  "name": "image-scrambler",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "ts-node ./script.ts"
+  },
+  "devDependencies": {
+    "@types/node": "20.4.1",
+    "ts-node": "10.9.1",
+    "typescript": "5.1.6"
+  }
+}
