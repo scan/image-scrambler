@@ -2,3 +2,6 @@
 /input
 /output
 /dist
+
+.DS_Store
+log*.txt

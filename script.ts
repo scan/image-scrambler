@@ -1,5 +1,5 @@
 import { copyFile, readdir, lstat, mkdir } from 'fs/promises';
-import { resolve, join, extname } from 'path';
+import { resolve, join, extname, basename } from 'path';
 
 const FILE_EXTENSIONS: ReadonlyArray<string> = [
   '.png',
@@ -12,6 +12,14 @@ const FILE_EXTENSIONS: ReadonlyArray<string> = [
 
 const INPUT_DIR_NAME = 'input';
 const OUTPUT_DIR_NAME = 'output';
+
+const SKIP_MODE = true;
+
+interface FileListElement {
+  sequenceID: number;
+  fileName: string;
+  filePath: string;
+}
 
 const isDirectory = async (path: string): Promise<boolean> => {
   try {
@@ -90,7 +98,7 @@ const main = async () => {
     })
   );
 
-  const fileList: Array<string> = [];
+  const fileList: Array<FileListElement> = [];
 
   // Until we have emptied all the input lists
   while (!areAllEmpty(listOfLists)) {
@@ -99,28 +107,68 @@ const main = async () => {
       const dir = listOfLists[i];
       const elem = dir.shift();
       if (elem) {
-        fileList.push(elem);
+        fileList.push({
+          filePath: elem,
+          sequenceID: i,
+          fileName: basename(elem),
+        });
       }
     }
 
-    // Go through the list backwards, skipping first and last
-    for (let i = listOfLists.length - 2; i > 0; i--) {
-      const dir = listOfLists[i];
-      const elem = dir.shift();
-      if (elem) {
-        fileList.push(elem);
+    if (SKIP_MODE) {
+      // throw away the next frame of the last list on the queue
+      listOfLists[listOfLists.length - 1].shift();
+
+      // Go through the list backwards, skipping first and last
+      for (let i = listOfLists.length - 2; i > 0; i--) {
+        const dir = listOfLists[i];
+        const elem = dir.shift();
+        if (elem) {
+          fileList.push({
+            filePath: elem,
+            sequenceID: i,
+            fileName: basename(elem),
+          });
+        }
+      }
+
+      // throw away the next frame of the first list
+      listOfLists[0].shift();
+    } else {
+      // Go through the list backwards, skipping first and last
+      for (let i = listOfLists.length - 1; i >= 0; i--) {
+        const dir = listOfLists[i];
+        const elem = dir.shift();
+        if (elem) {
+          fileList.push({
+            filePath: elem,
+            sequenceID: i,
+            fileName: basename(elem),
+          });
+        }
       }
     }
   }
+
+  /*
+  console.log(
+    fileList
+      .map(({ sequenceID, fileName }) => `${pad(sequenceID, 2)}-${fileName}`)
+      .join('\n')
+  );
+  */
 
   const magnitude = Math.ceil(Math.log10(fileList.length));
   const promises: Array<Promise<void>> = [];
 
   for (let i = 0; i < fileList.length; i++) {
     const entry = fileList[i];
-    const newName = join(outputDir, `${pad(i, magnitude)}${extname(entry)}`);
+    const newName = join(
+      outputDir,
+      `${pad(i, magnitude)}${extname(entry.fileName)}`
+    );
 
-    promises.push(copyFile(entry, newName));
+    promises.push(copyFile(entry.filePath, newName));
   }
 
   await Promise.all(promises);
