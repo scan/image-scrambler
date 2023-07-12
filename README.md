@@ -51,6 +51,12 @@ This can be changed in the script by adding to the const `FILE_EXTENSIONS`.
 
 Accordingly, `INPUT_DIR_NAME` and `OUTPUT_DIR_NAME` can be changed if another name is desired. Please be aware that the directories are always taken as relative from where the script is executed.
 
+## Skip mode
+
+By default, the scrambler operates in skip mode, as in, when changing direction for the images, the first and last images of the next sequence are discarded.
+
+If it's desired to keep these frames and linger longer when changing direction, set the `SKIP_MODE` variable to `false`.
+
 ## Caveats
 
 The script will not clear the `output` folder if run again. The user is responsible to make sure their prior work is moved and not overridden.
