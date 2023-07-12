@@ -1,6 +1,18 @@
 import { copyFile, readdir, lstat, mkdir } from 'fs/promises';
 import { resolve, join, extname } from 'path';
 
+const FILE_EXTENSIONS: ReadonlyArray<string> = [
+  '.png',
+  '.jpeg',
+  '.jpg',
+  '.exr',
+  '.tif',
+  '.tiff',
+] as const;
+
+const INPUT_DIR_NAME = 'input';
+const OUTPUT_DIR_NAME = 'output';
+
 const isDirectory = async (path: string): Promise<boolean> => {
   try {
     return (await lstat(path)).isDirectory();
@@ -43,8 +55,8 @@ const areAllEmpty = <T>(lst: Array<Array<T>>): boolean => {
 };
 
 const main = async () => {
-  const outputDir = resolve('.', 'output');
-  const inputDir = resolve('.', 'input');
+  const outputDir = resolve('.', OUTPUT_DIR_NAME);
+  const inputDir = resolve('.', INPUT_DIR_NAME);
 
   if (!isDirectory(inputDir)) {
     console.error(
@@ -72,7 +84,7 @@ const main = async () => {
   const listOfLists: Array<Array<string>> = await Promise.all(
     inputDirs.map(async (dir) => {
       const images = (await dirEntries(dir)).filter((fileName) =>
-        ['.jpg', '.jpeg', '.png', '.ext'].includes(extname(fileName))
+        FILE_EXTENSIONS.includes(extname(fileName).toLocaleLowerCase())
       );
       return images;
     })
