@@ -113,50 +113,38 @@ const main = async () => {
           fileName: basename(elem),
         });
       }
-    }
 
-    if (SKIP_MODE) {
-      // throw away the next frame of the last list on the queue
-      listOfLists[listOfLists.length - 1].shift();
-
-      // Go through the list backwards, skipping first and last
-      for (let i = listOfLists.length - 2; i > 0; i--) {
-        const dir = listOfLists[i];
-        const elem = dir.shift();
-        if (elem) {
-          fileList.push({
-            filePath: elem,
-            sequenceID: i,
-            fileName: basename(elem),
-          });
+      for (let j = 0; j < listOfLists.length; j++) {
+        if (i !== j) {
+          listOfLists[j].shift();
         }
       }
+    }
 
-      // throw away the next frame of the first list
-      listOfLists[0].shift();
-    } else {
-      // Go through the list backwards, skipping first and last
-      for (let i = listOfLists.length - 1; i >= 0; i--) {
-        const dir = listOfLists[i];
-        const elem = dir.shift();
-        if (elem) {
-          fileList.push({
-            filePath: elem,
-            sequenceID: i,
-            fileName: basename(elem),
-          });
+    for (let i = listOfLists.length - 2; i > 0; i--) {
+      const dir = listOfLists[i];
+      const elem = dir.shift();
+      if (elem) {
+        fileList.push({
+          filePath: elem,
+          sequenceID: i,
+          fileName: basename(elem),
+        });
+      }
+
+      for (let j = 0; j < listOfLists.length; j++) {
+        if (i !== j) {
+          listOfLists[j].shift();
         }
       }
     }
   }
 
-  /*
   console.log(
     fileList
       .map(({ sequenceID, fileName }) => `${pad(sequenceID, 2)}-${fileName}`)
       .join('\n')
   );
-  */
 
   const magnitude = Math.ceil(Math.log10(fileList.length));
   const promises: Array<Promise<void>> = [];

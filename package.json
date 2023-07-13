@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "start": "yarn build && node ./dist/index.mjs",
-    "build": "swc ./script.ts -o dist/index.mjs"
+    "build": "swc ./script.ts -o dist/index.mjs",
+    "create-video": "ffmpeg -framerate 24 -pattern_type glob -i 'output/*.tif' -c:v libx265 -an -pix_fmt yuv420p -y video.mp4"
   },
   "devDependencies": {
     "@swc/cli": "0.1.62",
